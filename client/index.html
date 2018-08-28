@@ -1,21 +1,32 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-  </head>
-  <body>
-    <p>Welcome to TriviaPUBG</p>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-      const socket = io();
 
-      socket.on('connect', () => {
-        console.log('Connected to server')
-      })
+<head>
+  <meta charset="utf-8">
+  <title>Play | TriviaPUBG</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
 
-      socket.on('disconnect', () => {
-        console.log('Disconnected from server')
-      })
-    </script>
-  </body>
+<body class="centered-form">
+  <div class="centered-form__form">
+    <form action="/chat.html">
+      <div class="form-field">
+        <h3>TriviaPUBG<h3>
+      </div>
+      <div class="form-field">
+        <label>Display name</label>
+        <input type="text" name="name" autofocus/>
+      </div>
+      <div class="form-field">
+        <label>Play Room</label>
+        <input type="text" name="room"/>
+      </div>
+      <div class="form-field">
+        <button>Play !</button>
+      </div>
+    </form>
+  </div>
+</body>
+
 </html>

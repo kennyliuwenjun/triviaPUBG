@@ -2,11 +2,12 @@ const moment = require('moment');
 const _ = require('underscore')
 
 
-const generateMessage = (from, text, admin) => {
+const generateMessage = (from, text, admin, gg) => {
   return {
     from,
     text,
     admin,
+    gg,
     createdAt: moment().valueOf()
   };
 };
@@ -19,8 +20,9 @@ const generateLocationMessage = (from, latitude, longitude) => {
   };
 };
 
-const generateButtonMessage = (data) => {
+const generateButtonMessage = (data,ready) => {
   return {
+    ready,
     answers: _.shuffle([...data.results[0].incorrect_answers, data.results[0].correct_answer]),
     createdAt: moment().valueOf()
   }

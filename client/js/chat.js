@@ -5,6 +5,9 @@ const markMap = {
   1:"/img/ready-mark.png",
   2:"/img/dead-mark.png"
 }
+const NO_ACTION = 0;
+const READY = 1;
+const DEAD = 2;
 
 function scrollToBottom () {
   // Selectors
@@ -41,7 +44,7 @@ socket.on('disconnect', function () {
 
 socket.on('updateUserList', function (users) {
   console.log(users)
-  const ol = $('<ol></ol>');
+  const ol = $('<ul></ul>');
 
   users.forEach(function (user) {
     ol.append($('<li></li>').text(user.name).append($(`<img class="ready-mark" src="${markMap[user.ready]}">`)));
@@ -59,6 +62,9 @@ socket.on('newMessage', function (message) {
     from: message.from,
     createdAt: formattedTime
   });
+  if(message.gg){
+    $('#ready-button').removeAttr('disabled')
+  }
 
   $('#messages').append(html);
   scrollToBottom();
@@ -82,8 +88,13 @@ socket.on('buttonMessage', function (message) {
 
   const span = $('<span></span>');
   message.answers.forEach(function (answer) {
-    span.append($(`<a href="#">${answer}</a>`));
-    span.append($(`<a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>`));
+    if(message.ready !== DEAD) {
+      span.append($(`<button class="answer">${answer}</button>`));
+      span.append($(`<a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>`));
+    } else {
+      span.append($(`<a>${answer}</a>`));
+      span.append($(`<a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>`));
+    }
   });
 
 
@@ -98,9 +109,11 @@ socket.on('buttonMessage', function (message) {
 
 
   $('#messages').append(buttonMessage);
-  $('span a').click(function(e) {
+  $('.answer').click(function(e) {
     e.preventDefault();
-    console.log(e.target.text)
+    socket.emit('answerMessage',  {answer:$(this).text()});
+    e.target.parentElement.parentElement.parentElement.remove();
+
   });
   scrollToBottom();
 });

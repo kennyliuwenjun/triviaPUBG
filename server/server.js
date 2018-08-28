@@ -64,34 +64,71 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('statusReady', async () => {
+  socket.on('statusReady', (message) => {
     const user = users.getUser(socket.id);
+    if (message.answer) {
+      user.answer = message.answer
+    }
     user.ready = 1
     io.to(user.room).emit('updateUserList', users.getUserList(user.room));
     console.log(users)
 
     if(users.checkAllReady(user.room)){
-      console.log(`fecthing question for room ${user.room}..`)
-      const api_response = (await axios.get(TRIVIA_API_URL)).data
-      console.log(api_response);
-      roomAnswer[user.room] = api_response.results[0].correct_answer;
-      let count = 3;
-      const timer = await setInterval(function() { handleTimer(count) }, 1000);
+      users.initializeQuestion(user.room);
+      io.to(user.room).emit('updateUserList', users.getUserList(user.room));
+      fetchQuestion(user)
+    }
+  });
 
-      function handleTimer() {
-        if(count === 0) {
-          clearInterval(timer);
-          io.to(user.room).emit('newMessage', generateMessage('Admin', api_response.results[0].question, true));
-          io.to(user.room).emit('buttonMessage', generateButtonMessage(api_response));
+  socket.on('answerMessage', (message) => {
+    const user = users.getUser(socket.id);
+    if (message.answer) {
+      user.answer = message.answer
+    }
+    user.ready = 1
+    io.to(user.room).emit('updateUserList', users.getUserList(user.room));
+    console.log(users)
+
+    if(users.checkAllReady(user.room)){
+      if (message.answer) {
+        const winners = users.checkAnswer(user.room,roomAnswer[user.room])
+        if(winners === 1){
+          const winner = users.getWinner(user.room);
+          console.log(winner)
+          io.to(user.room).emit('newMessage', generateMessage('Admin', `winner winner chicken dinner: ${winner}.`, true, true));
+          users.resetReady(user.room);
+        } else if (winners < 1){
+          io.to(user.room).emit('newMessage', generateMessage('Admin', 'Game Over: no one survived', true, true));
+          users.resetReady(user.room);
         } else {
-          io.to(user.room).emit('newMessage', generateMessage('Admin', count, true));
-          count--;
+          users.initializeQuestion(user.room);
+          fetchQuestion(user)
         }
+        io.to(user.room).emit('updateUserList', users.getUserList(user.room));
       }
-
     }
   });
 });
+
+async function fetchQuestion(user) {
+  console.log(`fecthing question for room ${user.room}..`)
+  const api_response = (await axios.get(TRIVIA_API_URL)).data
+  console.log(api_response);
+  roomAnswer[user.room] = api_response.results[0].correct_answer;
+  let count = 3;
+  const timer = await setInterval(function() { handleTimer(count) }, 1000);
+
+  function handleTimer() {
+    if(count === 0) {
+      clearInterval(timer);
+      io.to(user.room).emit('newMessage', generateMessage('Admin', api_response.results[0].question, true));
+      io.to(user.room).emit('buttonMessage', generateButtonMessage(api_response,user.ready));
+    } else {
+      io.to(user.room).emit('newMessage', generateMessage('Admin', count, true));
+      count--;
+    }
+  }
+}
 
 server.listen(port, () => {
   console.log(`Server is up on port ${port}`);

@@ -163,3 +163,10 @@ button:disabled{
   width: 10%;
   float: right;
 }
+#three-d-view{
+  border:1px solid black;
+  width: 24rem;
+  height: 18rem;
+  position:absolute;
+  right:0px;
+}

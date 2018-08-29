@@ -62,6 +62,9 @@ class Users {
       if(this.users[user].room === room) this.users[user].ready = 0;
     }
   }
+  getRoomUsers(room){
+    return this.users.filter(user => user.room === room);
+  }
 }
 
 module.exports = {Users};

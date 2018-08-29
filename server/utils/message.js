@@ -20,9 +20,10 @@ const generateLocationMessage = (from, latitude, longitude) => {
   };
 };
 
-const generateButtonMessage = (data,ready) => {
+const generateButtonMessage = (data,roomUsers) => {
+
   return {
-    ready,
+    roomUsers,
     answers: _.shuffle([...data.results[0].incorrect_answers, data.results[0].correct_answer]),
     createdAt: moment().valueOf()
   }

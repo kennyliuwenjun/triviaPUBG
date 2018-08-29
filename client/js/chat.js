@@ -1,4 +1,5 @@
 const socket = io();
+const threeView = new threeDview();
 
 const markMap = {
   0:"",
@@ -43,7 +44,9 @@ socket.on('disconnect', function () {
 });
 
 socket.on('updateUserList', function (users) {
+
   console.log(users)
+  threeView.updateStatus(users)
   const ol = $('<ul></ul>');
 
   users.forEach(function (user) {
@@ -84,18 +87,23 @@ socket.on('newLocationMessage', function (message) {
 });
 
 socket.on('buttonMessage', function (message) {
+
   console.log(message)
 
   const span = $('<span></span>');
-  message.answers.forEach(function (answer) {
-    if(message.ready !== DEAD) {
-      span.append($(`<button class="answer">${answer}</button>`));
-      span.append($(`<a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>`));
-    } else {
-      span.append($(`<a>${answer}</a>`));
-      span.append($(`<a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>`));
+  message.roomUsers.forEach(function (user) {
+    if(user.id === socket.id) {
+      message.answers.forEach(function (answer) {
+        if (user.ready === 2 ){
+          span.append($(`<a>${answer}</a>`));
+          span.append($(`<a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>`));
+        } else {
+          span.append($(`<button class="answer">${answer}</button>`));
+          span.append($(`<a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>`));
+        }
+      })
     }
-  });
+});
 
 
   const buttonMessage = $('<li class="message"></li>')

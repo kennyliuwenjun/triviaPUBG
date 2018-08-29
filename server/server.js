@@ -122,7 +122,8 @@ async function fetchQuestion(user) {
     if(count === 0) {
       clearInterval(timer);
       io.to(user.room).emit('newMessage', generateMessage('Admin', api_response.results[0].question, true));
-      io.to(user.room).emit('buttonMessage', generateButtonMessage(api_response,user.ready));
+
+      io.to(user.room).emit('buttonMessage', generateButtonMessage(api_response, users.getRoomUsers(user.room)));
     } else {
       io.to(user.room).emit('newMessage', generateMessage('Admin', count, true));
       count--;

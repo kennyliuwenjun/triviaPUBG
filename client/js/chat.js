@@ -61,7 +61,7 @@ socket.on('newMessage', function (message) {
   let template = $('#message-template').html();
   if(message.admin) template = $('#adminMessage-template').html();
   const html = Mustache.render(template, {
-    text: message.text,
+    text: $('<div>').html(message.text).text(),
     from: message.from,
     createdAt: formattedTime
   });
